@@ -6,7 +6,7 @@ const Ship = (length) => {
   const isSunk = () => shipHits.every((x) => x === true);
 
   return {
-    hit, isSunk,
+    hit, isSunk, length,
   };
 };
 
