@@ -62,3 +62,33 @@ test('attack misses a ship', () => {
   newGameboard.placeShip(0, 0, newShip, 0);
   expect(newGameboard.receiveAttack(0, 2)).toBe('miss');
 });
+
+test('attack sinks a ship', () => {
+  const newShip = Ship(2);
+  newGameboard.placeShip(0, 0, newShip, 0);
+  newGameboard.receiveAttack(0, 0);
+  newGameboard.receiveAttack(0, 1);
+  expect(newShip.isSunk()).toBe(true);
+});
+
+test('1 ship, all of the ships are sunk', () => {
+  const newShip = Ship(2);
+  newGameboard.placeShip(0, 0, newShip, 0);
+  newGameboard.receiveAttack(0, 0);
+  newGameboard.receiveAttack(0, 1);
+  expect(newGameboard.shipsAllSunk()).toBe(true);
+});
+
+test('2+ ships, all of the ships are sunk', () => {
+  const newShip = Ship(2);
+  const newShip2 = Ship(4);
+  newGameboard.placeShip(0, 0, newShip, 0);
+  newGameboard.placeShip(5, 0, newShip2, 0);
+  newGameboard.receiveAttack(0, 0);
+  newGameboard.receiveAttack(0, 1);
+  newGameboard.receiveAttack(5, 0);
+  newGameboard.receiveAttack(5, 1);
+  newGameboard.receiveAttack(5, 2);
+  newGameboard.receiveAttack(5, 3);
+  expect(newGameboard.shipsAllSunk()).toBe(true);
+});

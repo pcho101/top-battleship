@@ -5,6 +5,7 @@ const Gameboard = () => {
   for (let i = 0; i < 10; i++) {
     board[i] = Array(10).fill(0);
   }
+  const fleet = [];
   const getBoard = () => board;
   const isInBounds = (row, col, len, dir) => {
     if (dir) {
@@ -31,9 +32,23 @@ const Gameboard = () => {
     const noConflict = isNoConflict(row, col, len, dir);
     return inBounds && noConflict;
   };
+  const storeShipCoords = (row, col, ship, dir) => {
+    const coords = [];
+    if (dir === 0) {
+      for (let x = col; x < col + ship.length; x++) {
+        coords.push([row, x]);
+      }
+    } else {
+      for (let y = row; y < row + ship.length; y++) {
+        coords.push([y, col]);
+      }
+    }
+    fleet.push([ship, coords]);
+  };
   const placeShip = (row, col, ship, dir) => {
     const len = ship.length;
     if (!isValidPlace(row, col, len, dir)) return 'Invalid';
+    storeShipCoords(row, col, ship, dir);
     if (dir === 0) {
       for (let x = col; x < col + len; x++) {
         board[row][x] = 1;
@@ -43,19 +58,51 @@ const Gameboard = () => {
         board[y][col] = 1;
       }
     }
+    return 'Valid';
+  };
+  const getHitShip = (row, col) => {
+    for (let i = 0; i < fleet.length; i++) {
+      const coords = fleet[i][1];
+      const ship = fleet[i][0];
+      for (let j = 0; j < coords.length; j++) {
+        if (row === coords[j][0] && col === coords[j][1]) {
+          return ship;
+        }
+      }
+    }
+  };
+  const getHitIndex = (row, col) => {
+    for (let i = 0; i < fleet.length; i++) {
+      const coords = fleet[i][1];
+      for (let j = 0; j < coords.length; j++) {
+        if (row === coords[j][0] && col === coords[j][1]) {
+          return j;
+        }
+      }
+    }
   };
   const receiveAttack = (row, col) => {
     let attackMsg;
     if (board[row][col]) {
       attackMsg = 'hit';
+      const hitShip = getHitShip(row, col);
+      const hitIndex = getHitIndex(row, col);
+      hitShip.hit(hitIndex);
     } else {
       attackMsg = 'miss';
     }
     board[row][col] += 2;
     return attackMsg;
   };
+  const shipsAllSunk = () => {
+    for (let i = 0; i < fleet.length; i++) {
+      const ship = fleet[i][0];
+      if (!ship.isSunk()) return false;
+    }
+    return true;
+  };
   return {
-    getBoard, placeShip, receiveAttack,
+    getBoard, placeShip, receiveAttack, shipsAllSunk,
   };
 };
 
