@@ -56,10 +56,16 @@ const nextTurn = (turn) => {
   gameDisplay.textContent = turn ? 'Player turn' : 'Enemy turn';
 };
 
+const showShipCount = (shipCount, maxShips) => {
+  const gameDisplay = document.querySelector('.game-display');
+  gameDisplay.textContent = `${maxShips - shipCount} ships remaining`;
+};
+
 export {
   createGrid,
   render,
   update,
   endGame,
   nextTurn,
+  showShipCount,
 };
