@@ -16,16 +16,19 @@ const render = (playerBoard, enemyBoard) => {
   const body = document.querySelector('body');
   const playerTitle = document.createElement('div');
   const enemyTitle = document.createElement('div');
+  const gameDisplay = document.createElement('div');
   const playerGrid = createGrid(playerBoard);
   const enemyGrid = createGrid(enemyBoard);
   playerTitle.textContent = 'Player';
   enemyTitle.textContent = 'Enemy';
   playerGrid.classList.add('player-grid');
   enemyGrid.classList.add('enemy-grid');
+  gameDisplay.classList.add('game-display');
   body.appendChild(playerTitle);
   body.appendChild(playerGrid);
   body.appendChild(enemyTitle);
   body.appendChild(enemyGrid);
+  body.appendChild(gameDisplay);
 };
 
 const update = (board, isFirstPlayer) => {
@@ -43,8 +46,20 @@ const update = (board, isFirstPlayer) => {
   }
 };
 
+const endGame = () => {
+  const gameDisplay = document.querySelector('.game-display');
+  gameDisplay.textContent = 'Game Over';
+};
+
+const nextTurn = (turn) => {
+  const gameDisplay = document.querySelector('.game-display');
+  gameDisplay.textContent = turn ? 'Player turn' : 'Enemy turn';
+};
+
 export {
   createGrid,
   render,
   update,
+  endGame,
+  nextTurn,
 };

@@ -12,9 +12,20 @@ const game = () => {
   const player2 = Player();
   const enemyboard = Gameboard();
 
+  let turn = 0;
+  let gameOver = false;
+
+  const switchTurns = () => {
+    turn = turn ? 0 : 1;
+  };
+
   dom.render(playerboard.getBoard(), enemyboard.getBoard());
+  dom.nextTurn(turn);
+
+  const checkGameState = (board) => board.shipsAllSunk();
 
   const sendAttack = (e) => {
+    if (gameOver) return;
     const cell = e.target;
     const parent = e.target.parentElement;
     const index = [...parent.children].indexOf(cell);
@@ -22,11 +33,27 @@ const game = () => {
     const col = index % 10;
 
     if (parent.classList.contains('player-grid')) {
-      player2.attack(playerboard, row, col);
-      dom.update(playerboard.getBoard(), 1);
+      if (!turn) return;
+      if (!player2.attack(playerboard, row, col)) return;
+      dom.update(playerboard.getBoard(), turn);
+      if (checkGameState(playerboard)) {
+        gameOver = true;
+        dom.endGame();
+      } else {
+        switchTurns();
+        dom.nextTurn(turn);
+      }
     } else {
-      player1.attack(enemyboard, row, col);
-      dom.update(enemyboard.getBoard(), 0);
+      if (turn) return;
+      if (!player1.attack(enemyboard, row, col)) return;
+      dom.update(enemyboard.getBoard(), turn);
+      if (checkGameState(enemyboard)) {
+        gameOver = true;
+        dom.endGame();
+      } else {
+        switchTurns();
+        dom.nextTurn(turn);
+      }
     }
   };
   const addBoardListener = () => {
