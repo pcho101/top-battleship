@@ -7,7 +7,35 @@
   <title>Battleship</title>
 </head>
 <body>
-  <button class="restart">Restart</button>
+  <header>BattleShip</header>
+  <div class="user-buttons">
+    <button class="reset">Reset</button>
+    <button class="restart">Restart</button>
+    <button class="start">Start</button>
+    <label for="auto">Computer</label>
+    <input type="checkbox" name="auto" id="auto">
+  </div>
+  <div class="game">
+    <div class="player">
+      <div class="game-title">Player</div>
+      <div class="game-grid">
+        <div></div>
+      </div>
+      <div class="game-display"></div>
+    </div>
+    <div class="opponent">
+      <div class="game-title">Opponent</div>
+      <div class="game-grid">
+        <div></div>
+      </div>
+      <div class="game-display"></div>
+    </div>
+  </div>
+  <footer>
+    <p>2022 | 
+      <a href="https://github.com/pcho101/top-battleship">pcho101</a>
+    </p>
+  </footer>
   <script src="main.js"></script>
 </body>
 </html>
