@@ -13,22 +13,16 @@ const createGrid = (board) => {
 };
 
 const render = (playerBoard, enemyBoard) => {
-  const body = document.querySelector('body');
-  const playerTitle = document.createElement('div');
-  const enemyTitle = document.createElement('div');
-  const gameDisplay = document.createElement('div');
+  const player = document.querySelector('.player .game-grid');
+  const enemy = document.querySelector('.opponent .game-grid');
+
   const playerGrid = createGrid(playerBoard);
   const enemyGrid = createGrid(enemyBoard);
-  playerTitle.textContent = 'Player';
-  enemyTitle.textContent = 'Enemy';
   playerGrid.classList.add('player-grid');
   enemyGrid.classList.add('enemy-grid');
-  gameDisplay.classList.add('game-display');
-  body.appendChild(playerTitle);
-  body.appendChild(playerGrid);
-  body.appendChild(enemyTitle);
-  body.appendChild(enemyGrid);
-  body.appendChild(gameDisplay);
+
+  player.replaceChild(playerGrid, player.childNodes[0]);
+  enemy.replaceChild(enemyGrid, enemy.childNodes[0]);
 };
 
 const update = (board, isFirstPlayer) => {
