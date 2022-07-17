@@ -12,7 +12,7 @@ const game = () => {
   const player2 = Player();
   const enemyboard = Gameboard();
 
-  let gameMode = 0;
+  let gameMode = 1;
   let direction = 0;
   let shipPlacingPhase;
 
@@ -98,6 +98,17 @@ const game = () => {
 
   const checkGameState = (board) => board.shipsAllSunk();
 
+  const sendAutoAttack = () => {
+    player2.randAttack(playerboard);
+    dom.update(playerboard.getBoard(), turn);
+    if (checkGameState(playerboard)) {
+      gameOver = true;
+      dom.endGame();
+    } else {
+      switchTurns();
+      dom.nextTurn(turn);
+    }
+  };
   const sendAttack = (e) => {
     if (shipPlacingPhase) return;
     if (gameOver) return;
@@ -128,6 +139,7 @@ const game = () => {
       } else {
         switchTurns();
         dom.nextTurn(turn);
+        if (gameMode) sendAutoAttack();
       }
     }
   };
@@ -141,3 +153,12 @@ const game = () => {
 };
 
 game();
+
+const restartGame = () => {
+  game();
+};
+const addRestart = () => {
+  const restartBtn = document.querySelector('.restart');
+  restartBtn.addEventListener('click', restartGame);
+};
+addRestart();
