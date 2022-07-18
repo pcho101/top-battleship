@@ -24,15 +24,18 @@ const game = () => {
     p5: Ship(2),
   };
 
-  const e1ship = Ship(5);
-  const e2ship = Ship(4);
-  const e3ship = Ship(3);
-  const e4ship = Ship(3);
-  const e5ship = Ship(2);
+  const enemyShips = {
+    e1: Ship(5),
+    e2: Ship(4),
+    e3: Ship(3),
+    e4: Ship(3),
+    e5: Ship(2),
+  };
 
   let turn = 0;
   let gameOver = false;
   let playerShipCount = 0;
+  let enemyShipCount = 0;
   const maxShips = Object.keys(playerShips).length;
 
   const switchTurns = () => {
@@ -64,6 +67,22 @@ const game = () => {
         break;
     }
   };
+  const getNextEnemyShip = (x) => {
+    switch (x) {
+      case 0:
+        return enemyShips.e1;
+      case 1:
+        return enemyShips.e2;
+      case 2:
+        return enemyShips.e3;
+      case 3:
+        return enemyShips.e4;
+      case 4:
+        return enemyShips.e5;
+      default:
+        break;
+    }
+  };
   const setShip = (e) => {
     if (!shipPlacingPhase) return;
     const cell = e.target;
@@ -90,11 +109,13 @@ const game = () => {
   };
   shipPlacingPhaseListener();
 
-  enemyboard.placeShip(4, 3, e1ship, direction);
-  enemyboard.placeShip(5, 1, e2ship, direction);
-  enemyboard.placeShip(7, 6, e3ship, direction);
-  enemyboard.placeShip(9, 4, e4ship, direction);
-  enemyboard.placeShip(0, 1, e5ship, direction);
+  while (enemyShipCount < 5) {
+    const nextEnemyShip = getNextEnemyShip(enemyShipCount);
+    const x = Math.floor(Math.random() * 10);
+    const y = Math.floor(Math.random() * 10);
+    const dir = Math.floor(Math.random() * 2);
+    if (enemyboard.placeShip(y, x, nextEnemyShip, dir) === 'Valid') enemyShipCount++;
+  }
 
   const checkGameState = (board) => board.shipsAllSunk();
 
