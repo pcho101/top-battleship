@@ -1,5 +1,3 @@
-const Ship = require('../functions/Ship');
-
 const Gameboard = () => {
   const board = Array(10);
   for (let i = 0; i < 10; i++) {
@@ -47,7 +45,7 @@ const Gameboard = () => {
   };
   const placeShip = (row, col, ship, dir) => {
     const len = ship.length;
-    if (!isValidPlace(row, col, len, dir)) return 'Invalid';
+    if (!isValidPlace(row, col, len, dir)) return false;
     storeShipCoords(row, col, ship, dir);
     if (dir === 0) {
       for (let x = col; x < col + len; x++) {
@@ -58,7 +56,7 @@ const Gameboard = () => {
         board[y][col] = 1;
       }
     }
-    return 'Valid';
+    return true;
   };
   const getHitShip = (row, col) => {
     for (let i = 0; i < fleet.length; i++) {
