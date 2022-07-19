@@ -55,6 +55,17 @@ const showShipCount = (shipCount, maxShips) => {
   gameDisplay.textContent = `${maxShips - shipCount} ships remaining`;
 };
 
+const showPlayerShips = (board) => {
+  const grid = document.querySelector('.player-grid');
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      if (board[i][j] === 1) {
+        grid.children[i * 10 + j].classList.add('preview-good');
+      }
+    }
+  }
+};
+
 export {
   createGrid,
   render,
@@ -62,4 +73,5 @@ export {
   endGame,
   nextTurn,
   showShipCount,
+  showPlayerShips,
 };

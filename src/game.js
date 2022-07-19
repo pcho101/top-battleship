@@ -37,11 +37,16 @@ const createPieces = () => {
   };
 };
 
+const getGameMode = () => {
+  const mode = document.querySelector('#auto');
+  gameMode = mode.checked ? 1 : 0;
+};
+
 const initValues = () => {
+  getGameMode();
   gameOver = false;
   turn = 0;
   direction = 0;
-  gameMode = 0;
   p1ShipCount = 0;
   p2ShipCount = 0;
   maxShips = Object.keys(p1.ships).length;
@@ -158,7 +163,13 @@ const removePreviewListeners = () => {
 
 const rand = (n) => Math.floor(Math.random() * n);
 
-const autoPlaceShips = () => {
+const allShipsPlaced = () => {
+  if (p1ShipCount === maxShips && p2ShipCount === maxShips) {
+    startGame();
+  }
+};
+
+const p2AutoPlace = () => {
   while (p2ShipCount < 5) {
     const nextShip = nextp2Ship(p2ShipCount);
     const x = rand(10);
@@ -166,9 +177,10 @@ const autoPlaceShips = () => {
     const dir = rand(2);
     if (p2.board.placeShip(y, x, nextShip, dir)) p2ShipCount++;
   }
+  allShipsPlaced();
 };
 
-const autoPlace = () => {
+const p1AutoPlace = () => {
   while (p1ShipCount < 5) {
     const nextShip = nextp1Ship(p1ShipCount);
     const x = rand(10);
@@ -176,6 +188,8 @@ const autoPlace = () => {
     const dir = rand(2);
     if (p1.board.placeShip(y, x, nextShip, dir)) p1ShipCount++;
   }
+  dom.showPlayerShips(p1.board.getBoard());
+  allShipsPlaced();
   removePreviewListeners();
 };
 
@@ -186,14 +200,9 @@ const newGame = () => {
   dom.render(p1.board.getBoard(), p2.board.getBoard());
   dom.showShipCount(p1ShipCount, maxShips);
 
-  if (gameMode) autoPlaceShips();
+  if (gameMode) p2AutoPlace();
   shipPlacingPhase = true;
 
-  const allShipsPlaced = () => {
-    if (p1ShipCount === maxShips && p2ShipCount === maxShips) {
-      startGame();
-    }
-  };
   const setp1Ship = (e) => {
     if (!shipPlacingPhase || p1ShipCount === maxShips) return;
     const coords = getCellCoords(e.target);
@@ -286,7 +295,7 @@ const newGame = () => {
 
 const addRandomPlace = () => {
   const randBtn = document.querySelector('.random');
-  randBtn.addEventListener('click', autoPlace);
+  randBtn.addEventListener('click', p1AutoPlace);
 };
 
 const changeAxis = () => {
