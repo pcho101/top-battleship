@@ -13,6 +13,14 @@
   border: 1px dotted red;
 }
 
+.preview-good {
+  background-color: green;
+}
+
+.preview-bad {
+  background-color: yellow;
+}
+
 .hit {
   background-color: red;
 }

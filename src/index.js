@@ -99,12 +99,68 @@ const game = () => {
     }
     if (playerShipCount === maxShips) {
       startGame();
+      removePreviewListeners();
     }
   };
+
+  const previewShip = (e) => {
+    const nextShip = getNextShip(playerShipCount);
+    const len = nextShip.length;
+
+    const cell = e.target;
+    const parent = e.target.parentElement;
+    const index = [...parent.children].indexOf(cell);
+    const row = Math.floor(index / 10);
+    const col = index % 10;
+
+    const axis = direction ? row : col;
+    const style = playerboard.isValidPlace(row, col, len, direction) ? 'preview-good' : 'preview-bad';
+
+    for (let i = 0; i < len && i + axis < 10; i++) {
+      if (direction) {
+        parent.children[index + 10 * i].classList.add(`${style}`);
+      } else {
+        parent.children[index + i].classList.add(`${style}`);
+      }
+    }
+  };
+  const noPreview = (e) => {
+    const nextShip = getNextShip(playerShipCount);
+    const len = nextShip.length;
+
+    const cell = e.target;
+    const parent = e.target.parentElement;
+    const index = [...parent.children].indexOf(cell);
+    const row = Math.floor(index / 10);
+    const col = index % 10;
+
+    const axis = direction ? row : col;
+    const style = playerboard.isValidPlace(row, col, len, direction) ? 'preview-good' : 'preview-bad';
+
+    for (let i = 0; i < len && i + axis < 10; i++) {
+      if (direction) {
+        parent.children[index + 10 * i].classList.remove(`${style}`);
+      } else {
+        parent.children[index + i].classList.remove(`${style}`);
+      }
+    }
+  };
+
   const shipPlacingPhaseListener = () => {
     const cells = document.querySelectorAll('.player-grid .cell');
     cells.forEach((cell) => {
       cell.addEventListener('click', setShip);
+      cell.addEventListener('mouseenter', previewShip);
+      cell.addEventListener('mouseleave', noPreview);
+    });
+  };
+
+  const removePreviewListeners = () => {
+    const cells = document.querySelectorAll('.player-grid .cell');
+    cells.forEach((cell) => {
+      cell.removeEventListener('click', setShip);
+      cell.removeEventListener('mouseenter', previewShip);
+      cell.removeEventListener('mouseleave', noPreview);
     });
   };
   shipPlacingPhaseListener();
@@ -171,6 +227,11 @@ const game = () => {
     });
   };
   addBoardListener();
+  const changeAxis = () => {
+    direction = direction ? 0 : 1;
+  };
+  const axisBtn = document.querySelector('.axis');
+  axisBtn.addEventListener('click', changeAxis);
 };
 
 game();
