@@ -5,10 +5,10 @@ const Player = () => {
   const attack = (board, row, col) => {
     const val = convert2Dto1D(row, col);
     if (!shots.includes(val)) return false;
-    board.receiveAttack(row, col);
+    const shot = board.receiveAttack(row, col);
     const index = shots.indexOf(val);
     shots.splice(index, 1);
-    return true;
+    return [shot, row, col];
   };
   const randAttack = (board) => {
     if (shots.length === 0) return false;

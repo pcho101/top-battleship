@@ -240,8 +240,42 @@ const addSetShipListener = () => {
   });
 };
 
+let lastHit = false;
+const nextCoords = [];
+
+const setNextShots = (row, col) => {
+  if (row - 1 >= 0) nextCoords.push([row - 1, col]);
+  if (col - 1 >= 0) nextCoords.push([row, col - 1]);
+  if (row + 1 <= 9) nextCoords.push([row + 1, col]);
+  if (col + 1 <= 9) nextCoords.push([row, col + 1]);
+};
+
+const attackNearHit = () => {
+  let shotData;
+  for (let i = 0; i < nextCoords.length; i++) {
+    shotData = p2.player.attack(p1.board, nextCoords[i][0], nextCoords[i][1]);
+    if (shotData) {
+      if (shotData[0] === 'hit') setNextShots(shotData[1], shotData[2]);
+      break;
+    }
+  }
+  if (!shotData) {
+    shotData = p2.player.randAttack(p1.board);
+    nextCoords.length = [];
+    if (shotData[0] === 'hit') setNextShots(shotData[1], shotData[2]);
+  }
+};
+
 const sendAutoAttack = () => {
-  p2.player.randAttack(p1.board);
+  if (lastHit) {
+    attackNearHit();
+  } else {
+    const shotData = p2.player.randAttack(p1.board);
+    if (shotData[0] === 'hit') {
+      setNextShots(shotData[1], shotData[2]);
+      lastHit = true;
+    }
+  }
   dom.update(p1.board.getBoard(), turn);
   if (checkGameState(p1.board)) {
     gameOver = true;
@@ -251,6 +285,7 @@ const sendAutoAttack = () => {
     dom.nextTurn(turn);
   }
 };
+
 const sendAttack = (e) => {
   if (gameOver || shipPlacingPhase) return;
   const coords = getCellCoords(e.target);
