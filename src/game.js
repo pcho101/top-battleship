@@ -145,8 +145,13 @@ const removePreview = (e) => {
   preview(player, coords, len, false);
 };
 
-const addPreviewListeners = () => {
-  const cells = document.querySelectorAll('.cell');
+const addPreviewListeners = (player) => {
+  let cells;
+  if (player) {
+    cells = document.querySelectorAll('.player-grid .cell');
+  } else {
+    cells = document.querySelectorAll('.enemy-grid .cell');
+  }
   cells.forEach((cell) => {
     cell.addEventListener('mouseenter', addPreview);
     cell.addEventListener('mouseleave', removePreview);
@@ -183,6 +188,7 @@ const p2AutoPlace = () => {
     if (p2.board.placeShip(y, x, nextShip, dir)) p2ShipCount++;
   }
   dom.showEnemyShips(p2.board.getBoard());
+  dom.showShipCount(p2ShipCount, maxShips, false);
   removePreviewListeners(false);
   allShipsPlaced();
 };
@@ -196,6 +202,7 @@ const p1AutoPlace = () => {
     if (p1.board.placeShip(y, x, nextShip, dir)) p1ShipCount++;
   }
   dom.showPlayerShips(p1.board.getBoard());
+  dom.showShipCount(p1ShipCount, maxShips, true);
   removePreviewListeners(true);
   allShipsPlaced();
 };
@@ -207,7 +214,7 @@ const setp1Ship = (e) => {
 
   if (p1.board.placeShip(coords.row, coords.col, nextShip, direction)) {
     p1ShipCount++;
-    dom.showShipCount(p1ShipCount, maxShips);
+    dom.showShipCount(p1ShipCount, maxShips, true);
   }
   if (p1ShipCount === maxShips) {
     removePreviewListeners(true);
@@ -221,7 +228,7 @@ const setp2Ship = (e) => {
 
   if (p2.board.placeShip(coords.row, coords.col, nextShip, direction)) {
     p2ShipCount++;
-    dom.showShipCount(p2ShipCount, maxShips);
+    dom.showShipCount(p2ShipCount, maxShips, false);
   }
   if (p2ShipCount === maxShips) {
     removePreviewListeners(false);
@@ -327,9 +334,11 @@ const newGame = () => {
   initValues();
 
   dom.render(p1.board.getBoard(), p2.board.getBoard());
-  dom.showShipCount(p1ShipCount, maxShips);
+  dom.showShipCount(p1ShipCount, maxShips, true);
+  dom.showShipCount(p2ShipCount, maxShips, false);
 
-  addPreviewListeners();
+  addPreviewListeners(true);
+  addPreviewListeners(false);
   addSetShipListener();
   addBoardListener();
 
@@ -354,10 +363,25 @@ const addRestart = () => {
   restartBtn.addEventListener('click', newGame);
 };
 
+const resetGrid = () => {
+  p1ShipCount = 0;
+  p1.board.resetBoard();
+  dom.clearGrid(p1.board.getBoard(), 1);
+  dom.showPlayerShips(p1.board.getBoard());
+  addPreviewListeners(true);
+  dom.showShipCount(p1ShipCount, maxShips, true);
+};
+
+const addResetGrid = () => {
+  const resetBtn = document.querySelector('.reset');
+  resetBtn.addEventListener('click', resetGrid);
+};
+
 const addButtonListeners = () => {
   addRestart();
   addChangeAxis();
   addRandomPlace();
+  addResetGrid();
 };
 
 export {

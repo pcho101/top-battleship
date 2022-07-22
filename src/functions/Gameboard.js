@@ -99,8 +99,14 @@ const Gameboard = () => {
     }
     return true;
   };
+  const resetBoard = () => {
+    for (let i = 0; i < 10; i++) {
+      board[i] = Array(10).fill(0);
+    }
+    fleet.length = 0;
+  };
   return {
-    getBoard, placeShip, receiveAttack, shipsAllSunk, isValidPlace,
+    getBoard, placeShip, receiveAttack, shipsAllSunk, isValidPlace, resetBoard,
   };
 };
 

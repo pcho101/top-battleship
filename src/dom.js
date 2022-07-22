@@ -14,7 +14,7 @@ const createGrid = (board) => {
 
 const render = (playerBoard, enemyBoard) => {
   const player = document.querySelector('.player .game-grid');
-  const enemy = document.querySelector('.opponent .game-grid');
+  const enemy = document.querySelector('.enemy .game-grid');
 
   const playerGrid = createGrid(playerBoard);
   const enemyGrid = createGrid(enemyBoard);
@@ -47,11 +47,16 @@ const endGame = () => {
 
 const nextTurn = (turn) => {
   const gameDisplay = document.querySelector('.game-display');
-  gameDisplay.textContent = turn ? 'Player turn' : 'Enemy turn';
+  gameDisplay.textContent = turn ? 'Enemy turn' : 'Player turn';
 };
 
-const showShipCount = (shipCount, maxShips) => {
-  const gameDisplay = document.querySelector('.game-display');
+// const showShipCount = (shipCount, maxShips) => {
+//   const gameDisplay = document.querySelector('.game-display');
+//   gameDisplay.textContent = `${maxShips - shipCount} ships remaining`;
+// };
+
+const showShipCount = (shipCount, maxShips, isFirstPlayer) => {
+  const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
   gameDisplay.textContent = `${maxShips - shipCount} ships remaining`;
 };
 
@@ -77,6 +82,15 @@ const showEnemyShips = (board) => {
   }
 };
 
+const clearGrid = (board, isFirstPlayer) => {
+  const grid = isFirstPlayer ? document.querySelector('.player-grid') : document.querySelector('.enemy-grid');
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      grid.children[i * 10 + j].classList.remove('preview-good');
+    }
+  }
+};
+
 export {
   createGrid,
   render,
@@ -86,4 +100,5 @@ export {
   showShipCount,
   showPlayerShips,
   showEnemyShips,
+  clearGrid,
 };
