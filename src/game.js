@@ -14,6 +14,8 @@ let turn;
 let gameOver;
 let maxShips;
 let shipPlacingPhase;
+let lastHit;
+const nextCoords = [];
 
 const createPieces = () => {
   p1.player = Player();
@@ -40,6 +42,7 @@ const createPieces = () => {
 const getGameMode = () => {
   const mode = document.querySelector('#auto');
   gameMode = mode.checked ? 1 : 0;
+  return gameMode;
 };
 
 const initValues = () => {
@@ -51,6 +54,8 @@ const initValues = () => {
   p2ShipCount = 0;
   shipPlacingPhase = true;
   maxShips = Object.keys(p1.ships).length;
+  lastHit = false;
+  nextCoords.length = 0;
 };
 
 const nextp1Ship = (x) => {
@@ -107,11 +112,6 @@ const checkGameState = (board) => board.shipsAllSunk();
 
 const switchTurns = () => {
   turn = turn ? 0 : 1;
-};
-
-const startGame = () => {
-  shipPlacingPhase = false;
-  dom.nextTurn(turn);
 };
 
 const preview = (p, coords, len, state) => {
@@ -173,12 +173,6 @@ const removePreviewListeners = (player) => {
 
 const rand = (n) => Math.floor(Math.random() * n);
 
-const allShipsPlaced = () => {
-  if (p1ShipCount === maxShips && p2ShipCount === maxShips) {
-    startGame();
-  }
-};
-
 const p2AutoPlace = () => {
   while (p2ShipCount < 5) {
     const nextShip = nextp2Ship(p2ShipCount);
@@ -188,9 +182,8 @@ const p2AutoPlace = () => {
     if (p2.board.placeShip(y, x, nextShip, dir)) p2ShipCount++;
   }
   dom.showEnemyShips(p2.board.getBoard());
-  dom.showShipCount(p2ShipCount, maxShips, false);
+  dom.ready(false);
   removePreviewListeners(false);
-  allShipsPlaced();
 };
 
 const p1AutoPlace = () => {
@@ -202,9 +195,8 @@ const p1AutoPlace = () => {
     if (p1.board.placeShip(y, x, nextShip, dir)) p1ShipCount++;
   }
   dom.showPlayerShips(p1.board.getBoard());
-  dom.showShipCount(p1ShipCount, maxShips, true);
+  dom.ready(true);
   removePreviewListeners(true);
-  allShipsPlaced();
 };
 
 const setp1Ship = (e) => {
@@ -218,7 +210,7 @@ const setp1Ship = (e) => {
   }
   if (p1ShipCount === maxShips) {
     removePreviewListeners(true);
-    allShipsPlaced();
+    dom.ready(true);
   }
 };
 const setp2Ship = (e) => {
@@ -232,7 +224,7 @@ const setp2Ship = (e) => {
   }
   if (p2ShipCount === maxShips) {
     removePreviewListeners(false);
-    allShipsPlaced();
+    dom.ready(false);
   }
 };
 
@@ -246,9 +238,6 @@ const addSetShipListener = () => {
     cell.addEventListener('click', setp2Ship);
   });
 };
-
-let lastHit = false;
-const nextCoords = [];
 
 const setNextShots = (row, col) => {
   if (row - 1 >= 0) nextCoords.push([row - 1, col]);
@@ -329,6 +318,31 @@ const addBoardListener = () => {
   });
 };
 
+const enableBtns = () => {
+  const buttons = document.querySelectorAll('button.random, button.reset, button.start, button.axis, input#auto');
+  buttons.forEach((btn) => {
+    btn.disabled = false;
+  });
+};
+
+const disableBtns = () => {
+  const buttons = document.querySelectorAll('button.random, button.reset, button.start, button.axis, input#auto');
+  buttons.forEach((btn) => {
+    btn.disabled = true;
+  });
+};
+
+const startGame = () => {
+  if (p1ShipCount !== maxShips) return;
+  if (getGameMode()) p2AutoPlace();
+  if (p2ShipCount !== maxShips) return;
+
+  disableBtns();
+  addBoardListener();
+  shipPlacingPhase = false;
+  dom.nextTurn(turn);
+};
+
 const newGame = () => {
   createPieces();
   initValues();
@@ -340,9 +354,7 @@ const newGame = () => {
   addPreviewListeners(true);
   addPreviewListeners(false);
   addSetShipListener();
-  addBoardListener();
-
-  if (gameMode) p2AutoPlace();
+  enableBtns();
 };
 
 const addRandomPlace = () => {
@@ -377,11 +389,17 @@ const addResetGrid = () => {
   resetBtn.addEventListener('click', resetGrid);
 };
 
+const addStartBtn = () => {
+  const startBtn = document.querySelector('.start');
+  startBtn.addEventListener('click', startGame);
+};
+
 const addButtonListeners = () => {
   addRestart();
   addChangeAxis();
   addRandomPlace();
   addResetGrid();
+  addStartBtn();
 };
 
 export {

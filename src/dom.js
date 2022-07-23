@@ -50,11 +50,6 @@ const nextTurn = (turn) => {
   gameDisplay.textContent = turn ? 'Enemy turn' : 'Player turn';
 };
 
-// const showShipCount = (shipCount, maxShips) => {
-//   const gameDisplay = document.querySelector('.game-display');
-//   gameDisplay.textContent = `${maxShips - shipCount} ships remaining`;
-// };
-
 const showShipCount = (shipCount, maxShips, isFirstPlayer) => {
   const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
   gameDisplay.textContent = `${maxShips - shipCount} ships remaining`;
@@ -91,6 +86,11 @@ const clearGrid = (board, isFirstPlayer) => {
   }
 };
 
+const ready = (isFirstPlayer) => {
+  const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
+  gameDisplay.textContent = 'ready to start';
+};
+
 export {
   createGrid,
   render,
@@ -101,4 +101,5 @@ export {
   showPlayerShips,
   showEnemyShips,
   clearGrid,
+  ready,
 };
