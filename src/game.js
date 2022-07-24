@@ -110,8 +110,40 @@ const getCellCoords = (cell) => {
 
 const checkGameState = (board) => board.shipsAllSunk();
 
-const switchTurns = () => {
+const nextMove = () => {
+  if (turn === 0) {
+    dom.showEnemyShips(p2.board.getBoard());
+  } else {
+    dom.showPlayerShips(p1.board.getBoard());
+  }
   turn = turn ? 0 : 1;
+};
+
+const modal = document.querySelector('.modal');
+
+const openModal = () => {
+  modal.style.display = 'block';
+};
+
+const closeModal = () => {
+  modal.style.display = 'none';
+  nextMove();
+};
+
+modal.addEventListener('click', closeModal);
+
+const switchTurns = () => {
+  if (gameMode === 0) {
+    if (turn === 0) {
+      dom.hidePlayerShips(p1.board.getBoard());
+      openModal();
+    } else {
+      dom.hideEnemyShips(p2.board.getBoard());
+      openModal();
+    }
+  } else {
+    turn = turn ? 0 : 1;
+  }
 };
 
 const preview = (p, coords, len, state) => {
@@ -340,6 +372,7 @@ const startGame = () => {
   disableBtns();
   addBoardListener();
   shipPlacingPhase = false;
+  dom.hideEnemyShips(p2.board.getBoard());
   dom.nextTurn(turn);
 };
 

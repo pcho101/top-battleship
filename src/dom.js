@@ -91,6 +91,28 @@ const ready = (isFirstPlayer) => {
   gameDisplay.textContent = 'ready to start';
 };
 
+const hidePlayerShips = (board) => {
+  const grid = document.querySelector('.player-grid');
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      if (board[i][j] === 1) {
+        grid.children[i * 10 + j].classList.remove('preview-good');
+      }
+    }
+  }
+};
+
+const hideEnemyShips = (board) => {
+  const grid = document.querySelector('.enemy-grid');
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      if (board[i][j] === 1) {
+        grid.children[i * 10 + j].classList.remove('preview-good');
+      }
+    }
+  }
+};
+
 export {
   createGrid,
   render,
@@ -102,4 +124,6 @@ export {
   showEnemyShips,
   clearGrid,
   ready,
+  hidePlayerShips,
+  hideEnemyShips,
 };
