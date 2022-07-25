@@ -113,6 +113,13 @@ const hideEnemyShips = (board) => {
   }
 };
 
+const showPlayersReady = () => {
+  const playerDisplay = document.querySelector('.player .game-display');
+  const enemyDisplay = document.querySelector('.enemy .game-display');
+  playerDisplay.textContent = 'press start to begin';
+  enemyDisplay.textContent = 'press start to begin';
+};
+
 export {
   createGrid,
   render,
@@ -126,4 +133,5 @@ export {
   ready,
   hidePlayerShips,
   hideEnemyShips,
+  showPlayersReady,
 };

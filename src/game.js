@@ -16,6 +16,7 @@ let maxShips;
 let shipPlacingPhase;
 let lastHit;
 const nextCoords = [];
+let bothPlayersReady;
 
 const createPieces = () => {
   p1.player = Player();
@@ -56,6 +57,7 @@ const initValues = () => {
   maxShips = Object.keys(p1.ships).length;
   lastHit = false;
   nextCoords.length = 0;
+  bothPlayersReady = false;
 };
 
 const nextp1Ship = (x) => {
@@ -213,7 +215,6 @@ const p2AutoPlace = () => {
     const dir = rand(2);
     if (p2.board.placeShip(y, x, nextShip, dir)) p2ShipCount++;
   }
-  dom.showEnemyShips(p2.board.getBoard());
   dom.ready(false);
   removePreviewListeners(false);
 };
@@ -246,7 +247,7 @@ const setp1Ship = (e) => {
   }
 };
 const setp2Ship = (e) => {
-  if (gameMode || !shipPlacingPhase || p2ShipCount === maxShips) return;
+  if (getGameMode() || !shipPlacingPhase || p2ShipCount === maxShips) return;
   const coords = getCellCoords(e.target);
   const nextShip = nextp2Ship(p2ShipCount);
 
@@ -351,30 +352,55 @@ const addBoardListener = () => {
 };
 
 const enableBtns = () => {
-  const buttons = document.querySelectorAll('button.random, button.reset, button.start, button.axis, input#auto');
+  const buttons = document.querySelectorAll('button.random, button.reset, button.start, button.axis, input#auto, button.player-ready, button.enemy-ready');
   buttons.forEach((btn) => {
     btn.disabled = false;
   });
 };
 
 const disableBtns = () => {
-  const buttons = document.querySelectorAll('button.random, button.reset, button.start, button.axis, input#auto');
+  const buttons = document.querySelectorAll('button.random, button.reset, button.start, button.axis, input#auto, button.player-ready, button.enemy-ready');
   buttons.forEach((btn) => {
     btn.disabled = true;
   });
 };
 
 const startGame = () => {
-  if (p1ShipCount !== maxShips) return;
-  if (getGameMode()) p2AutoPlace();
-  if (p2ShipCount !== maxShips) return;
-
+  if (!bothPlayersReady) return;
   disableBtns();
   addBoardListener();
   shipPlacingPhase = false;
   dom.hideEnemyShips(p2.board.getBoard());
   dom.nextTurn(turn);
 };
+
+const playerReadyBtn = document.querySelector('.player-ready');
+const enemyReadyBtn = document.querySelector('.enemy-ready');
+
+const playerReady = () => {
+  if (p1ShipCount !== maxShips) return;
+  if (getGameMode()) {
+    p2AutoPlace();
+    bothPlayersReady = true;
+    dom.showPlayersReady();
+  } else {
+    dom.hidePlayerShips(p1.board.getBoard());
+    playerReadyBtn.disabled = true;
+    openModal();
+  }
+};
+
+const enemyReady = () => {
+  if (p2ShipCount !== maxShips) return;
+  dom.hideEnemyShips(p2.board.getBoard());
+  enemyReadyBtn.disabled = true;
+  openModal();
+  bothPlayersReady = true;
+  dom.showPlayersReady();
+};
+
+playerReadyBtn.addEventListener('click', playerReady);
+enemyReadyBtn.addEventListener('click', enemyReady);
 
 const newGame = () => {
   createPieces();
