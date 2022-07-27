@@ -6,7 +6,6 @@ const Gameboard = require('./functions/Gameboard');
 
 const p1 = {};
 const p2 = {};
-let gameMode;
 let direction;
 let p1ShipCount;
 let p2ShipCount;
@@ -40,14 +39,20 @@ const createPieces = () => {
   };
 };
 
-const getGameMode = () => {
-  const mode = document.querySelector('#auto');
-  gameMode = mode.checked ? 1 : 0;
-  return gameMode;
-};
+const randBtn = document.querySelector('.random');
+const resetBtn = document.querySelector('.reset');
+const restartBtn = document.querySelector('.restart');
+const startBtn = document.querySelector('.start');
+const axisBtn = document.querySelector('.axis');
+const playerReadyBtn = document.querySelector('.player-ready');
+const enemyReadyBtn = document.querySelector('.enemy-ready');
+const gameModeBtn = document.querySelector('#auto');
+
+const modal = document.querySelector('.modal');
+
+const getGameMode = () => (gameModeBtn.checked ? 1 : 0);
 
 const initValues = () => {
-  getGameMode();
   gameOver = false;
   turn = 0;
   direction = 0;
@@ -96,7 +101,6 @@ const nextp2Ship = (x) => {
 
 const getCellCoords = (cell) => {
   const coords = {};
-
   coords.parent = cell.parentElement;
   coords.index = [...coords.parent.children].indexOf(cell);
   coords.row = Math.floor(coords.index / 10);
@@ -106,7 +110,6 @@ const getCellCoords = (cell) => {
   } else {
     coords.player = false;
   }
-
   return coords;
 };
 
@@ -121,8 +124,6 @@ const nextMove = () => {
   turn = turn ? 0 : 1;
 };
 
-const modal = document.querySelector('.modal');
-
 const openModal = () => {
   modal.style.display = 'block';
 };
@@ -135,7 +136,7 @@ const closeModal = () => {
 modal.addEventListener('click', closeModal);
 
 const switchTurns = () => {
-  if (gameMode === 0) {
+  if (getGameMode() === 0) {
     if (turn === 0) {
       dom.hidePlayerShips(p1.board.getBoard());
       openModal();
@@ -215,6 +216,7 @@ const p2AutoPlace = () => {
     const dir = rand(2);
     if (p2.board.placeShip(y, x, nextShip, dir)) p2ShipCount++;
   }
+  if (getGameMode() === 0) dom.showEnemyShips(p2.board.getBoard());
   dom.ready(false);
   removePreviewListeners(false);
 };
@@ -261,16 +263,21 @@ const setp2Ship = (e) => {
   }
 };
 
-const addSetShipListener = () => {
+const p1SetShip = () => {
   const p1cells = document.querySelectorAll('.player-grid .cell');
   p1cells.forEach((cell) => {
     cell.addEventListener('click', setp1Ship);
   });
+};
+
+const p2SetShip = () => {
   const p2cells = document.querySelectorAll('.enemy-grid .cell');
   p2cells.forEach((cell) => {
     cell.addEventListener('click', setp2Ship);
   });
 };
+
+const addSetShipListener = (isFirstPlayer) => (isFirstPlayer ? p1SetShip() : p2SetShip());
 
 const setNextShots = (row, col) => {
   if (row - 1 >= 0) nextCoords.push([row - 1, col]);
@@ -340,7 +347,7 @@ const sendAttack = (e) => {
     } else {
       switchTurns();
       dom.nextTurn(turn);
-      if (gameMode) sendAutoAttack();
+      if (getGameMode()) sendAutoAttack();
     }
   }
 };
@@ -365,6 +372,13 @@ const disableBtns = () => {
   });
 };
 
+const disableSelectBtns = () => {
+  enemyReadyBtn.disabled = true;
+  randBtn.disabled = true;
+  resetBtn.disabled = true;
+  axisBtn.disabled = true;
+};
+
 const startGame = () => {
   if (!bothPlayersReady) return;
   disableBtns();
@@ -374,18 +388,20 @@ const startGame = () => {
   dom.nextTurn(turn);
 };
 
-const playerReadyBtn = document.querySelector('.player-ready');
-const enemyReadyBtn = document.querySelector('.enemy-ready');
-
 const playerReady = () => {
   if (p1ShipCount !== maxShips) return;
+  gameModeBtn.disabled = true;
   if (getGameMode()) {
+    playerReadyBtn.disabled = true;
+    disableSelectBtns();
     p2AutoPlace();
     bothPlayersReady = true;
     dom.showPlayersReady();
   } else {
     dom.hidePlayerShips(p1.board.getBoard());
     playerReadyBtn.disabled = true;
+    addSetShipListener(false);
+    addPreviewListeners(false);
     openModal();
   }
 };
@@ -393,14 +409,11 @@ const playerReady = () => {
 const enemyReady = () => {
   if (p2ShipCount !== maxShips) return;
   dom.hideEnemyShips(p2.board.getBoard());
-  enemyReadyBtn.disabled = true;
+  disableSelectBtns();
   openModal();
   bothPlayersReady = true;
   dom.showPlayersReady();
 };
-
-playerReadyBtn.addEventListener('click', playerReady);
-enemyReadyBtn.addEventListener('click', enemyReady);
 
 const newGame = () => {
   createPieces();
@@ -411,54 +424,44 @@ const newGame = () => {
   dom.showShipCount(p2ShipCount, maxShips, false);
 
   addPreviewListeners(true);
-  addPreviewListeners(false);
-  addSetShipListener();
+  addSetShipListener(true);
   enableBtns();
 };
 
-const addRandomPlace = () => {
-  const randBtn = document.querySelector('.random');
-  randBtn.addEventListener('click', p1AutoPlace);
-};
+const autoPlace = () => (turn === 0 ? p1AutoPlace() : p2AutoPlace());
 
 const changeAxis = () => {
   direction = direction ? 0 : 1;
 };
-const addChangeAxis = () => {
-  const axisBtn = document.querySelector('.axis');
-  axisBtn.addEventListener('click', changeAxis);
-};
 
-const addRestart = () => {
-  const restartBtn = document.querySelector('.restart');
-  restartBtn.addEventListener('click', newGame);
-};
-
-const resetGrid = () => {
+const resetp1Grid = () => {
   p1ShipCount = 0;
   p1.board.resetBoard();
-  dom.clearGrid(p1.board.getBoard(), 1);
+  dom.clearGrid(p1.board.getBoard(), true);
   dom.showPlayerShips(p1.board.getBoard());
   addPreviewListeners(true);
   dom.showShipCount(p1ShipCount, maxShips, true);
 };
 
-const addResetGrid = () => {
-  const resetBtn = document.querySelector('.reset');
-  resetBtn.addEventListener('click', resetGrid);
+const resetp2Grid = () => {
+  p2ShipCount = 0;
+  p2.board.resetBoard();
+  dom.clearGrid(p2.board.getBoard(), false);
+  dom.showEnemyShips(p2.board.getBoard());
+  addPreviewListeners(false);
+  dom.showShipCount(p2ShipCount, maxShips, false);
 };
 
-const addStartBtn = () => {
-  const startBtn = document.querySelector('.start');
-  startBtn.addEventListener('click', startGame);
-};
+const resetGrid = () => (turn === 0 ? resetp1Grid() : resetp2Grid());
 
 const addButtonListeners = () => {
-  addRestart();
-  addChangeAxis();
-  addRandomPlace();
-  addResetGrid();
-  addStartBtn();
+  restartBtn.addEventListener('click', newGame);
+  axisBtn.addEventListener('click', changeAxis);
+  randBtn.addEventListener('click', autoPlace);
+  resetBtn.addEventListener('click', resetGrid);
+  startBtn.addEventListener('click', startGame);
+  playerReadyBtn.addEventListener('click', playerReady);
+  enemyReadyBtn.addEventListener('click', enemyReady);
 };
 
 export {
