@@ -19,6 +19,7 @@ const Player = () => {
     const col = convertedVal[1];
     return attack(board, row, col);
   };
+
   return {
     attack, randAttack,
   };

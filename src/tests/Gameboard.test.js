@@ -54,21 +54,20 @@ test('overlapping ships', () => {
 test('attack hits a ship', () => {
   const newShip = Ship(2);
   newGameboard.placeShip(0, 0, newShip, 0);
-  expect(newGameboard.receiveAttack(0, 0)).toBe('hit');
+  expect(newGameboard.receiveAttack(0, 0)).toBe(1);
 });
 
 test('attack misses a ship', () => {
   const newShip = Ship(2);
   newGameboard.placeShip(0, 0, newShip, 0);
-  expect(newGameboard.receiveAttack(0, 2)).toBe('miss');
+  expect(newGameboard.receiveAttack(0, 2)).toBe(0);
 });
 
 test('attack sinks a ship', () => {
   const newShip = Ship(2);
   newGameboard.placeShip(0, 0, newShip, 0);
   newGameboard.receiveAttack(0, 0);
-  newGameboard.receiveAttack(0, 1);
-  expect(newShip.isSunk()).toBe(true);
+  expect(newGameboard.receiveAttack(0, 1)).toBe(newShip);
 });
 
 test('1 ship, all of the ships are sunk', () => {
@@ -91,4 +90,11 @@ test('2+ ships, all of the ships are sunk', () => {
   newGameboard.receiveAttack(5, 2);
   newGameboard.receiveAttack(5, 3);
   expect(newGameboard.shipsAllSunk()).toBe(true);
+});
+
+test('resetting gameboard', () => {
+  const ship1 = Ship(2);
+  newGameboard.placeShip(0, 0, ship1, 0);
+  newGameboard.resetBoard();
+  expect(newGameboard.getBoard()).toEqual(testBoard);
 });

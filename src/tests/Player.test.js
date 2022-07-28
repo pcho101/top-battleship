@@ -24,7 +24,7 @@ beforeEach(() => {
 });
 
 test('player attacks enemy board', () => {
-  expect(player.attack(enemyBoard, 0, 0)).toEqual(true);
+  expect(player.attack(enemyBoard, 0, 0)).toEqual([0, 0, 0]);
 });
 
 test('player attacks enemy board, enemy board shows shot', () => {

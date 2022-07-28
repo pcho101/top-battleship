@@ -1,4 +1,4 @@
-const Ship = (length) => {
+const Ship = (length, name) => {
   const shipHits = Array(length).fill(false);
   const hit = (index) => {
     shipHits[index] = true;
@@ -6,7 +6,10 @@ const Ship = (length) => {
   const isSunk = () => shipHits.every((x) => x === true);
 
   return {
-    hit, isSunk, length,
+    hit,
+    isSunk,
+    length,
+    name,
   };
 };
 

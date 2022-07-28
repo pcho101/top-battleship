@@ -80,17 +80,17 @@ const Gameboard = () => {
     }
   };
   const receiveAttack = (row, col) => {
-    let attackMsg;
-    if (board[row][col]) {
-      attackMsg = 'hit';
+    board[row][col] += 2;
+    if (board[row][col] === 3) {
       const hitShip = getHitShip(row, col);
       const hitIndex = getHitIndex(row, col);
       hitShip.hit(hitIndex);
-    } else {
-      attackMsg = 'miss';
+      if (hitShip.isSunk()) {
+        return hitShip;
+      }
+      return 1;
     }
-    board[row][col] += 2;
-    return attackMsg;
+    return 0;
   };
   const shipsAllSunk = () => {
     for (let i = 0; i < fleet.length; i++) {
@@ -105,8 +105,15 @@ const Gameboard = () => {
     }
     fleet.length = 0;
   };
+
   return {
-    getBoard, placeShip, receiveAttack, shipsAllSunk, isValidPlace, resetBoard,
+    getBoard,
+    isValidPlace,
+    placeShip,
+    getHitShip,
+    receiveAttack,
+    shipsAllSunk,
+    resetBoard,
   };
 };
 
