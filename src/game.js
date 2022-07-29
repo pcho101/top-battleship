@@ -9,7 +9,7 @@ const p2 = {};
 let direction;
 let p1ShipCount;
 let p2ShipCount;
-let turn;
+let playerTurn;
 let gameOver;
 let maxShips;
 let shipPlacingPhase;
@@ -21,21 +21,21 @@ const createPieces = () => {
   p1.player = Player();
   p1.board = Gameboard();
   p1.ships = {
-    s1: Ship(5),
-    s2: Ship(4),
-    s3: Ship(3),
-    s4: Ship(3),
-    s5: Ship(2),
+    s1: Ship(5, 'Carrier'),
+    s2: Ship(4, 'Battleship'),
+    s3: Ship(3, 'Cruiser'),
+    s4: Ship(3, 'Submarine'),
+    s5: Ship(2, 'Destroyer'),
   };
 
   p2.player = Player();
   p2.board = Gameboard();
   p2.ships = {
-    s1: Ship(5),
-    s2: Ship(4),
-    s3: Ship(3),
-    s4: Ship(3),
-    s5: Ship(2),
+    s1: Ship(5, 'Carrier'),
+    s2: Ship(4, 'Battleship'),
+    s3: Ship(3, 'Cruiser'),
+    s4: Ship(3, 'Submarine'),
+    s5: Ship(2, 'Destroyer'),
   };
 };
 
@@ -54,7 +54,7 @@ const getGameMode = () => (gameModeBtn.checked ? 1 : 0);
 
 const initValues = () => {
   gameOver = false;
-  turn = 0;
+  playerTurn = 1;
   direction = 0;
   p1ShipCount = 0;
   p2ShipCount = 0;
@@ -116,12 +116,12 @@ const getCellCoords = (cell) => {
 const checkGameState = (board) => board.shipsAllSunk();
 
 const nextMove = () => {
-  if (turn === 0) {
+  if (playerTurn === 1) {
     dom.showEnemyShips(p2.board.getBoard());
   } else {
     dom.showPlayerShips(p1.board.getBoard());
   }
-  turn = turn ? 0 : 1;
+  playerTurn = playerTurn ? 0 : 1;
 };
 
 const openModal = () => {
@@ -137,7 +137,7 @@ modal.addEventListener('click', closeModal);
 
 const switchTurns = () => {
   if (getGameMode() === 0) {
-    if (turn === 0) {
+    if (playerTurn === 1) {
       dom.hidePlayerShips(p1.board.getBoard());
       openModal();
     } else {
@@ -145,7 +145,7 @@ const switchTurns = () => {
       openModal();
     }
   } else {
-    turn = turn ? 0 : 1;
+    playerTurn = playerTurn ? 0 : 1;
   }
 };
 
@@ -291,15 +291,16 @@ const attackNearHit = () => {
   for (let i = 0; i < nextCoords.length; i++) {
     shotData = p2.player.attack(p1.board, nextCoords[i][0], nextCoords[i][1]);
     if (shotData) {
-      if (shotData[0] === 'hit') setNextShots(shotData[1], shotData[2]);
+      if (shotData[0] === 1) setNextShots(shotData[1], shotData[2]);
       break;
     }
   }
   if (!shotData) {
     shotData = p2.player.randAttack(p1.board);
     nextCoords.length = [];
-    if (shotData[0] === 'hit') setNextShots(shotData[1], shotData[2]);
+    if (shotData[0] === 1) setNextShots(shotData[1], shotData[2]);
   }
+  dom.showAttack(true, shotData[0]);
 };
 
 const sendAutoAttack = () => {
@@ -307,18 +308,18 @@ const sendAutoAttack = () => {
     attackNearHit();
   } else {
     const shotData = p2.player.randAttack(p1.board);
-    if (shotData[0] === 'hit') {
+    if (shotData[0] === 1) {
       setNextShots(shotData[1], shotData[2]);
       lastHit = true;
     }
+    dom.showAttack(true, shotData[0]);
   }
-  dom.update(p1.board.getBoard(), turn);
+  dom.update(p1.board.getBoard(), playerTurn);
   if (checkGameState(p1.board)) {
     gameOver = true;
     dom.endGame();
   } else {
     switchTurns();
-    dom.nextTurn(turn);
   }
 };
 
@@ -326,28 +327,35 @@ const sendAttack = (e) => {
   if (gameOver || shipPlacingPhase) return;
   const coords = getCellCoords(e.target);
 
-  if (coords.parent.classList.contains('player-grid')) {
-    if (!turn) return;
-    if (!p2.player.attack(p1.board, coords.row, coords.col)) return;
-    dom.update(p1.board.getBoard(), turn);
+  if (coords.player) {
+    if (playerTurn) return;
+    const attack = p2.player.attack(p1.board, coords.row, coords.col);
+    if (!attack) return;
+    dom.update(p1.board.getBoard(), playerTurn);
+    dom.showAttack(true, attack[0]);
     if (checkGameState(p1.board)) {
       gameOver = true;
       dom.endGame();
     } else {
       switchTurns();
-      dom.nextTurn(turn);
+      dom.nextTurn(playerTurn);
     }
   } else {
-    if (turn) return;
-    if (!p1.player.attack(p2.board, coords.row, coords.col)) return;
-    dom.update(p2.board.getBoard(), turn);
+    if (!playerTurn) return;
+    const attack = p1.player.attack(p2.board, coords.row, coords.col);
+    if (!attack) return;
+    dom.update(p2.board.getBoard(), playerTurn);
+    dom.showAttack(false, attack[0]);
     if (checkGameState(p2.board)) {
       gameOver = true;
       dom.endGame();
     } else {
       switchTurns();
-      dom.nextTurn(turn);
-      if (getGameMode()) sendAutoAttack();
+      if (getGameMode()) {
+        sendAutoAttack();
+        return;
+      }
+      dom.nextTurn(playerTurn);
     }
   }
 };
@@ -385,7 +393,7 @@ const startGame = () => {
   addBoardListener();
   shipPlacingPhase = false;
   dom.hideEnemyShips(p2.board.getBoard());
-  dom.nextTurn(turn);
+  dom.gameStart();
 };
 
 const playerReady = () => {
@@ -428,7 +436,7 @@ const newGame = () => {
   enableBtns();
 };
 
-const autoPlace = () => (turn === 0 ? p1AutoPlace() : p2AutoPlace());
+const autoPlace = () => (playerTurn === 1 ? p1AutoPlace() : p2AutoPlace());
 
 const changeAxis = () => {
   direction = direction ? 0 : 1;
@@ -452,7 +460,7 @@ const resetp2Grid = () => {
   dom.showShipCount(p2ShipCount, maxShips, false);
 };
 
-const resetGrid = () => (turn === 0 ? resetp1Grid() : resetp2Grid());
+const resetGrid = () => (playerTurn === 1 ? resetp1Grid() : resetp2Grid());
 
 const addButtonListeners = () => {
   restartBtn.addEventListener('click', newGame);

@@ -26,7 +26,7 @@ const render = (playerBoard, enemyBoard) => {
 };
 
 const update = (board, isFirstPlayer) => {
-  const grid = isFirstPlayer ? document.querySelector('.player-grid') : document.querySelector('.enemy-grid');
+  const grid = isFirstPlayer ? document.querySelector('.enemy-grid') : document.querySelector('.player-grid');
   for (let i = 0; i < board.length; i++) {
     for (let j = 0; j < board[0].length; j++) {
       if (board[i][j] > 1) {
@@ -41,13 +41,15 @@ const update = (board, isFirstPlayer) => {
 };
 
 const endGame = () => {
-  const gameDisplay = document.querySelector('.game-display');
-  gameDisplay.textContent = 'Game Over';
+  const playerDisplay = document.querySelector('.player .game-display');
+  const enemyDisplay = document.querySelector('.enemy .game-display');
+  playerDisplay.textContent = 'Game Over';
+  enemyDisplay.textContent = 'Game Over';
 };
 
-const nextTurn = (turn) => {
-  const gameDisplay = document.querySelector('.game-display');
-  gameDisplay.textContent = turn ? 'Enemy turn' : 'Player turn';
+const nextTurn = (isFirstPlayer) => {
+  const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
+  gameDisplay.textContent = isFirstPlayer ? 'Enemy turn' : 'Player turn';
 };
 
 const showShipCount = (shipCount, maxShips, isFirstPlayer) => {
@@ -120,6 +122,24 @@ const showPlayersReady = () => {
   enemyDisplay.textContent = 'press start to begin';
 };
 
+const gameStart = () => {
+  const playerDisplay = document.querySelector('.player .game-display');
+  const enemyDisplay = document.querySelector('.enemy .game-display');
+  playerDisplay.textContent = 'Player turn';
+  enemyDisplay.textContent = 'Player turn';
+};
+
+const showAttack = (isFirstPlayer, result) => {
+  const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
+  if (result === 0) {
+    gameDisplay.textContent = 'Miss!';
+  } else if (result === 1) {
+    gameDisplay.textContent = 'Hit!';
+  } else {
+    gameDisplay.textContent = `${result.name} has sunk!`;
+  }
+};
+
 export {
   createGrid,
   render,
@@ -134,4 +154,6 @@ export {
   hidePlayerShips,
   hideEnemyShips,
   showPlayersReady,
+  gameStart,
+  showAttack,
 };
