@@ -7,32 +7,42 @@
   <title>Battleship</title>
 </head>
 <body>
-  <header>BattleShip</header>
+  <header>
+    <span>Battle</span><span class="suffix">Ship</span>
+  </header>
+  <div class="game-mode">
+    <label for="auto">Play vs Computer?</label>
+    <input type="checkbox" name="auto" id="auto">
+  </div>
   <div class="user-buttons">
     <button class="random">Random</button>
     <button class="reset">Reset</button>
+    <button class="axis">Rotate</button>
     <button class="restart">Restart</button>
-    <button class="start">Start</button>
-    <button class="axis">Axis</button>
-    <button class="player-ready">Player ready</button>
-    <button class="enemy-ready">Enemy ready</button>
-    <label for="auto">Computer</label>
-    <input type="checkbox" name="auto" id="auto">
+  </div>
+  <div class="game-start">
+    <button class="start">Start Game</button>
   </div>
   <div class="game">
     <div class="player">
-      <div class="game-title">Player</div>
+      <div class="game-title">Player Board</div>
       <div class="game-grid">
         <div></div>
       </div>
       <div class="game-display"></div>
+      <div class="game-ready">
+        <button class="player-ready">Ready</button>
+      </div>
     </div>
     <div class="enemy">
-      <div class="game-title">Enemy</div>
+      <div class="game-title">Enemy Board</div>
       <div class="game-grid">
         <div></div>
       </div>
       <div class="game-display"></div>
+      <div class="game-ready">
+        <button class="enemy-ready">Ready</button>
+      </div>
     </div>
   </div>
   <div class="modal">
