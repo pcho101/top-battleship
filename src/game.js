@@ -41,9 +41,9 @@ const createPieces = () => {
 
 const randBtn = document.querySelector('.random');
 const resetBtn = document.querySelector('.reset');
+const rotateBtn = document.querySelector('.rotate');
 const restartBtn = document.querySelector('.restart');
 const startBtn = document.querySelector('.start');
-const axisBtn = document.querySelector('.axis');
 const playerReadyBtn = document.querySelector('.player-ready');
 const enemyReadyBtn = document.querySelector('.enemy-ready');
 const gameModeBtn = document.querySelector('#auto');
@@ -216,7 +216,10 @@ const p2AutoPlace = () => {
     const dir = rand(2);
     if (p2.board.placeShip(y, x, nextShip, dir)) p2ShipCount++;
   }
-  if (getGameMode() === 0) dom.showEnemyShips(p2.board.getBoard());
+  if (getGameMode() === 0) {
+    dom.showEnemyShips(p2.board.getBoard());
+    enemyReadyBtn.disabled = false;
+  }
   dom.ready(false);
   removePreviewListeners(false);
 };
@@ -232,6 +235,7 @@ const p1AutoPlace = () => {
   dom.showPlayerShips(p1.board.getBoard());
   dom.ready(true);
   removePreviewListeners(true);
+  playerReadyBtn.disabled = false;
 };
 
 const setp1Ship = (e) => {
@@ -246,6 +250,7 @@ const setp1Ship = (e) => {
   if (p1ShipCount === maxShips) {
     removePreviewListeners(true);
     dom.ready(true);
+    playerReadyBtn.disabled = false;
   }
 };
 const setp2Ship = (e) => {
@@ -260,6 +265,7 @@ const setp2Ship = (e) => {
   if (p2ShipCount === maxShips) {
     removePreviewListeners(false);
     dom.ready(false);
+    enemyReadyBtn.disabled = false;
   }
 };
 
@@ -315,9 +321,14 @@ const sendAutoAttack = () => {
     dom.showAttack(true, shotData[0]);
   }
   dom.update(p1.board.getBoard(), playerTurn);
-  if (checkGameState(p1.board)) {
+  const playerLose = checkGameState(p1.board);
+  const enemyLose = checkGameState(p2.board);
+  if (playerLose && enemyLose) {
     gameOver = true;
-    dom.endGame();
+    dom.endGame(2);
+  } else if (playerLose || enemyLose) {
+    gameOver = true;
+    dom.endGame(playerLose);
   } else {
     switchTurns();
   }
@@ -333,9 +344,14 @@ const sendAttack = (e) => {
     if (!attack) return;
     dom.update(p1.board.getBoard(), playerTurn);
     dom.showAttack(true, attack[0]);
-    if (checkGameState(p1.board)) {
+    const playerLose = checkGameState(p1.board);
+    const enemyLose = checkGameState(p2.board);
+    if (playerLose && enemyLose) {
       gameOver = true;
-      dom.endGame();
+      dom.endGame(2);
+    } else if (playerLose || enemyLose) {
+      gameOver = true;
+      dom.endGame(playerLose);
     } else {
       switchTurns();
       dom.nextTurn(playerTurn);
@@ -346,17 +362,12 @@ const sendAttack = (e) => {
     if (!attack) return;
     dom.update(p2.board.getBoard(), playerTurn);
     dom.showAttack(false, attack[0]);
-    if (checkGameState(p2.board)) {
-      gameOver = true;
-      dom.endGame();
-    } else {
-      switchTurns();
-      if (getGameMode()) {
-        sendAutoAttack();
-        return;
-      }
-      dom.nextTurn(playerTurn);
+    switchTurns();
+    if (getGameMode()) {
+      sendAutoAttack();
+      return;
     }
+    dom.nextTurn(playerTurn);
   }
 };
 const addBoardListener = () => {
@@ -367,14 +378,18 @@ const addBoardListener = () => {
 };
 
 const enableBtns = () => {
-  const buttons = document.querySelectorAll('button.random, button.reset, button.start, button.axis, input#auto, button.player-ready, button.enemy-ready');
-  buttons.forEach((btn) => {
+  const active = document.querySelectorAll('button.random, button.reset, button.rotate, input#auto');
+  active.forEach((btn) => {
     btn.disabled = false;
+  });
+  const inactive = document.querySelectorAll('button.start, button.player-ready, button.enemy-ready');
+  inactive.forEach((btn) => {
+    btn.disabled = true;
   });
 };
 
 const disableBtns = () => {
-  const buttons = document.querySelectorAll('button.random, button.reset, button.start, button.axis, input#auto, button.player-ready, button.enemy-ready');
+  const buttons = document.querySelectorAll('button.random, button.reset, button.rotate, button.start, input#auto, button.player-ready, button.enemy-ready');
   buttons.forEach((btn) => {
     btn.disabled = true;
   });
@@ -384,7 +399,8 @@ const disableSelectBtns = () => {
   enemyReadyBtn.disabled = true;
   randBtn.disabled = true;
   resetBtn.disabled = true;
-  axisBtn.disabled = true;
+  rotateBtn.disabled = true;
+  startBtn.disabled = false;
 };
 
 const startGame = () => {
@@ -449,6 +465,7 @@ const resetp1Grid = () => {
   dom.showPlayerShips(p1.board.getBoard());
   addPreviewListeners(true);
   dom.showShipCount(p1ShipCount, maxShips, true);
+  playerReadyBtn.disabled = true;
 };
 
 const resetp2Grid = () => {
@@ -458,13 +475,14 @@ const resetp2Grid = () => {
   dom.showEnemyShips(p2.board.getBoard());
   addPreviewListeners(false);
   dom.showShipCount(p2ShipCount, maxShips, false);
+  enemyReadyBtn.disabled = true;
 };
 
 const resetGrid = () => (playerTurn === 1 ? resetp1Grid() : resetp2Grid());
 
 const addButtonListeners = () => {
   restartBtn.addEventListener('click', newGame);
-  axisBtn.addEventListener('click', changeAxis);
+  rotateBtn.addEventListener('click', changeAxis);
   randBtn.addEventListener('click', autoPlace);
   resetBtn.addEventListener('click', resetGrid);
   startBtn.addEventListener('click', startGame);

@@ -68,6 +68,10 @@ button:disabled {
   padding-bottom: 32px;
 }
 
+.inactive {
+  opacity: 50%;
+}
+
 .player,
 .enemy {
   display: flex;
@@ -146,8 +150,4 @@ footer {
   align-content: center;
   background-color: #707070;
   height: min-content;
-}
-
-@media only screen and (min-width: 600px) {
-
 }

@@ -5,11 +5,19 @@ const createGrid = (board) => {
     for (let j = 0; j < board[0].length; j++) {
       const cell = document.createElement('div');
       cell.classList.add('cell');
-      cell.textContent = '-';
       grid.appendChild(cell);
     }
   }
   return grid;
+};
+
+const fadeBoard = (isFirstPlayer) => {
+  const player = document.querySelector('.player');
+  const enemy = document.querySelector('.enemy');
+  const gameSection = isFirstPlayer ? document.querySelector('.game .enemy') : document.querySelector('.game .player');
+  player.classList.remove('inactive');
+  enemy.classList.remove('inactive');
+  gameSection.classList.add('inactive');
 };
 
 const render = (playerBoard, enemyBoard) => {
@@ -23,6 +31,7 @@ const render = (playerBoard, enemyBoard) => {
 
   player.replaceChild(playerGrid, player.childNodes[0]);
   enemy.replaceChild(enemyGrid, enemy.childNodes[0]);
+  fadeBoard(true);
 };
 
 const update = (board, isFirstPlayer) => {
@@ -40,21 +49,30 @@ const update = (board, isFirstPlayer) => {
   }
 };
 
-const endGame = () => {
+const endGame = (winner) => {
+  let winnerText;
   const playerDisplay = document.querySelector('.player .game-display');
   const enemyDisplay = document.querySelector('.enemy .game-display');
-  playerDisplay.textContent = 'Game Over';
-  enemyDisplay.textContent = 'Game Over';
+  if (winner === false) {
+    winnerText = 'Game Over! Player has won!';
+  } else if (winner === true) {
+    winnerText = 'Game Over! Enemy has won!';
+  } else {
+    winnerText = 'Game Over! Tie game!';
+  }
+  playerDisplay.textContent = winnerText;
+  enemyDisplay.textContent = winnerText;
 };
 
 const nextTurn = (isFirstPlayer) => {
   const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
   gameDisplay.textContent = isFirstPlayer ? 'Enemy turn' : 'Player turn';
+  fadeBoard(isFirstPlayer);
 };
 
 const showShipCount = (shipCount, maxShips, isFirstPlayer) => {
   const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
-  gameDisplay.textContent = `${maxShips - shipCount} ships remaining`;
+  gameDisplay.textContent = `${maxShips - shipCount} ship(s) remaining`;
 };
 
 const showPlayerShips = (board) => {
@@ -90,7 +108,7 @@ const clearGrid = (board, isFirstPlayer) => {
 
 const ready = (isFirstPlayer) => {
   const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
-  gameDisplay.textContent = 'ready to start';
+  gameDisplay.textContent = 'Click ready to lock in';
 };
 
 const hidePlayerShips = (board) => {
@@ -102,6 +120,7 @@ const hidePlayerShips = (board) => {
       }
     }
   }
+  fadeBoard(false);
 };
 
 const hideEnemyShips = (board) => {
@@ -118,8 +137,9 @@ const hideEnemyShips = (board) => {
 const showPlayersReady = () => {
   const playerDisplay = document.querySelector('.player .game-display');
   const enemyDisplay = document.querySelector('.enemy .game-display');
-  playerDisplay.textContent = 'press start to begin';
-  enemyDisplay.textContent = 'press start to begin';
+  playerDisplay.textContent = 'Press start game to begin';
+  enemyDisplay.textContent = 'Press start game to begin';
+  fadeBoard(false);
 };
 
 const gameStart = () => {
