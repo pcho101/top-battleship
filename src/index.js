@@ -1,5 +1,6 @@
 import './style.css';
 import * as game from './game';
+import * as events from './events';
 
-game.addButtonListeners();
+events.addListeners();
 game.newGame();

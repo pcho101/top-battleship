@@ -1,3 +1,20 @@
+const gameModeBtn = document.querySelector('#auto');
+const randBtn = document.querySelector('.random');
+const resetBtn = document.querySelector('.reset');
+const rotateBtn = document.querySelector('.rotate');
+
+const startBtn = document.querySelector('.start');
+const playerReadyBtn = document.querySelector('.player-ready');
+const enemyReadyBtn = document.querySelector('.enemy-ready');
+
+const playerSection = document.querySelector('.player');
+const enemySection = document.querySelector('.enemy');
+const playerDisplay = document.querySelector('.player .game-display');
+const enemyDisplay = document.querySelector('.enemy .game-display');
+
+const defaultActiveBtns = document.querySelectorAll('.random, .reset, .rotate, input#auto');
+const defaultInactiveBtns = document.querySelectorAll('.start, .player-ready, .enemy-ready');
+
 const createGrid = (board) => {
   const grid = document.createElement('div');
   grid.classList.add('grid');
@@ -12,11 +29,9 @@ const createGrid = (board) => {
 };
 
 const fadeBoard = (isFirstPlayer) => {
-  const player = document.querySelector('.player');
-  const enemy = document.querySelector('.enemy');
-  const gameSection = isFirstPlayer ? document.querySelector('.game .enemy') : document.querySelector('.game .player');
-  player.classList.remove('inactive');
-  enemy.classList.remove('inactive');
+  const gameSection = isFirstPlayer ? enemySection : playerSection;
+  playerSection.classList.remove('inactive');
+  enemySection.classList.remove('inactive');
   gameSection.classList.add('inactive');
 };
 
@@ -51,8 +66,6 @@ const update = (board, isFirstPlayer) => {
 
 const endGame = (winner) => {
   let winnerText;
-  const playerDisplay = document.querySelector('.player .game-display');
-  const enemyDisplay = document.querySelector('.enemy .game-display');
   if (winner === false) {
     winnerText = 'Game Over! Player has won!';
   } else if (winner === true) {
@@ -65,18 +78,18 @@ const endGame = (winner) => {
 };
 
 const nextTurn = (isFirstPlayer) => {
-  const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
+  const gameDisplay = isFirstPlayer ? playerDisplay : enemyDisplay;
   gameDisplay.textContent = isFirstPlayer ? 'Enemy turn' : 'Player turn';
   fadeBoard(isFirstPlayer);
 };
 
 const showShipCount = (shipCount, maxShips, isFirstPlayer) => {
-  const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
+  const gameDisplay = isFirstPlayer ? playerDisplay : enemyDisplay;
   gameDisplay.textContent = `${maxShips - shipCount} ship(s) remaining`;
 };
 
-const showPlayerShips = (board) => {
-  const grid = document.querySelector('.player-grid');
+const showShips = (board, isFirstPlayer) => {
+  const grid = isFirstPlayer ? document.querySelector('.player-grid') : document.querySelector('.enemy-grid');
   for (let i = 0; i < board.length; i++) {
     for (let j = 0; j < board[0].length; j++) {
       if (board[i][j] === 1) {
@@ -86,15 +99,16 @@ const showPlayerShips = (board) => {
   }
 };
 
-const showEnemyShips = (board) => {
-  const grid = document.querySelector('.enemy-grid');
+const hideShips = (board, isFirstPlayer) => {
+  const grid = isFirstPlayer ? document.querySelector('.player-grid') : document.querySelector('.enemy-grid');
   for (let i = 0; i < board.length; i++) {
     for (let j = 0; j < board[0].length; j++) {
       if (board[i][j] === 1) {
-        grid.children[i * 10 + j].classList.add('preview-good');
+        grid.children[i * 10 + j].classList.remove('preview-good');
       }
     }
   }
+  if (isFirstPlayer) fadeBoard(false);
 };
 
 const clearGrid = (board, isFirstPlayer) => {
@@ -107,50 +121,23 @@ const clearGrid = (board, isFirstPlayer) => {
 };
 
 const ready = (isFirstPlayer) => {
-  const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
+  const gameDisplay = isFirstPlayer ? playerDisplay : enemyDisplay;
   gameDisplay.textContent = 'Click ready to lock in';
 };
 
-const hidePlayerShips = (board) => {
-  const grid = document.querySelector('.player-grid');
-  for (let i = 0; i < board.length; i++) {
-    for (let j = 0; j < board[0].length; j++) {
-      if (board[i][j] === 1) {
-        grid.children[i * 10 + j].classList.remove('preview-good');
-      }
-    }
-  }
-  fadeBoard(false);
-};
-
-const hideEnemyShips = (board) => {
-  const grid = document.querySelector('.enemy-grid');
-  for (let i = 0; i < board.length; i++) {
-    for (let j = 0; j < board[0].length; j++) {
-      if (board[i][j] === 1) {
-        grid.children[i * 10 + j].classList.remove('preview-good');
-      }
-    }
-  }
-};
-
 const showPlayersReady = () => {
-  const playerDisplay = document.querySelector('.player .game-display');
-  const enemyDisplay = document.querySelector('.enemy .game-display');
   playerDisplay.textContent = 'Press start game to begin';
   enemyDisplay.textContent = 'Press start game to begin';
   fadeBoard(false);
 };
 
 const gameStart = () => {
-  const playerDisplay = document.querySelector('.player .game-display');
-  const enemyDisplay = document.querySelector('.enemy .game-display');
   playerDisplay.textContent = 'Player turn';
   enemyDisplay.textContent = 'Player turn';
 };
 
 const showAttack = (isFirstPlayer, result) => {
-  const gameDisplay = isFirstPlayer ? document.querySelector('.player .game-display') : document.querySelector('.enemy .game-display');
+  const gameDisplay = isFirstPlayer ? playerDisplay : enemyDisplay;
   if (result === 0) {
     gameDisplay.textContent = 'Miss!';
   } else if (result === 1) {
@@ -160,6 +147,49 @@ const showAttack = (isFirstPlayer, result) => {
   }
 };
 
+const enableReady = (isFirstPlayer) => {
+  if (isFirstPlayer) {
+    playerReadyBtn.disabled = false;
+  } else {
+    enemyReadyBtn.disabled = false;
+  }
+};
+
+const disableReady = (isFirstPlayer) => {
+  if (isFirstPlayer) {
+    playerReadyBtn.disabled = true;
+  } else {
+    enemyReadyBtn.disabled = true;
+  }
+};
+
+const enableBtns = () => {
+  defaultActiveBtns.forEach((btn) => {
+    btn.disabled = false;
+  });
+  defaultInactiveBtns.forEach((btn) => {
+    btn.disabled = true;
+  });
+};
+
+const disableStartBtn = () => {
+  startBtn.disabled = true;
+};
+
+const disableSelectBtns = () => {
+  enemyReadyBtn.disabled = true;
+  randBtn.disabled = true;
+  resetBtn.disabled = true;
+  rotateBtn.disabled = true;
+  startBtn.disabled = false;
+};
+
+const getGameMode = () => (gameModeBtn.checked ? 1 : 0);
+
+const disableGameMode = () => {
+  gameModeBtn.disabled = true;
+};
+
 export {
   createGrid,
   render,
@@ -167,13 +197,18 @@ export {
   endGame,
   nextTurn,
   showShipCount,
-  showPlayerShips,
-  showEnemyShips,
+  showShips,
+  hideShips,
   clearGrid,
   ready,
-  hidePlayerShips,
-  hideEnemyShips,
   showPlayersReady,
   gameStart,
   showAttack,
+  enableReady,
+  disableReady,
+  enableBtns,
+  disableStartBtn,
+  disableSelectBtns,
+  getGameMode,
+  disableGameMode,
 };
