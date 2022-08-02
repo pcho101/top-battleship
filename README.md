@@ -2,6 +2,6 @@
 
 ### [The Odin Project](https://www.theodinproject.com/)
 
-[Live Demo Link to be added later]()
+[Live Demo](https://pcho101.github.io/top-battleship/)
 
 Battleship game created using Test Driven Development.
